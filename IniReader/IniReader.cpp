@@ -11,20 +11,20 @@
 #include <string>
 #include <vector>
 
-static inline LPCTSTR NextToken(LPCTSTR pArg)
+static inline char* NextToken(char* pArg)
 {
 	// find next null with strchr and
 	// point to the char beyond that.
-	return wcschr(pArg, '\0') + 1;
+	return strchr(pArg, '\0') + 1;
 }
 
-void loadIniFile(const LPCTSTR iniFilePath, const LPCTSTR sectionName) {
+void loadIniFile(const char* iniFilePath, const char* sectionName) {
 	CONST INT bufferSize = 10000;
-	WCHAR buffer[bufferSize];
+	char buffer[bufferSize];
 
 	int charsRead = 0;
 
-	charsRead = GetPrivateProfileSection(sectionName,
+	charsRead = GetPrivateProfileSectionA(sectionName,
 		buffer,
 		bufferSize,
 		iniFilePath);
@@ -36,33 +36,33 @@ void loadIniFile(const LPCTSTR iniFilePath, const LPCTSTR sectionName) {
 
 		// start at the beginning (const to remind us not to
 		// change the contents of the buffer)
-		CONST LPCTSTR pSubstr = buffer;
-		for (LPCTSTR pToken = pSubstr; pToken && *pToken; pToken = NextToken(pToken)) {
+		char* pSubstr = buffer;
+		for (char* pToken = pSubstr; pToken && *pToken; pToken = NextToken(pToken)) {
 			// while we have non-empty substrings...
 			if ('\0' != *pToken && '#' != *pToken) {
 				// length of key-value pair substring
-				size_t substrLen = wcslen(pToken);
+				size_t substrLen = strlen(pToken);
 				// split substring on '=' char
-				LPCTSTR pos = wcschr(pToken, '=');
+				char* pos = strchr(pToken, '=');
 				if (NULL != pos) {
 					// todo: remove "magic number" for buffer size 
-					WCHAR name[255];
-					WCHAR value[255];
+					char name[255];
+					char value[255];
 					// if you're not using VC++ you'll prob. need to replace
 					// _countof(name) with sizeof(name)/sizeof(char) and
 					// similarly for value. Plus replace strncpy_s with plain
 					// old strncpy.
-					wcsncpy_s(name, _countof(name), pToken, pos - pToken);
-					wcsncpy_s(value, _countof(value), pos + 1, substrLen - (pos - pToken));
-					_putws(name);
-					_putws(value);
+					strncpy_s(name, _countof(name), pToken, pos - pToken);
+					strncpy_s(value, _countof(value), pos + 1, substrLen - (pos - pToken));
+					puts(name);
+					puts(value);
 				}
 			}
 		}
 	}
 }
 
-int _tmain(int argc, _TCHAR* argv[]){
+int main(int argc, char* argv[]) {
 if (3 != argc) {
 	std::cerr << "ini section dump test\n"
 		"\n"
@@ -74,17 +74,17 @@ if (3 != argc) {
 		"- paths and section names containing spaces must be quoted" << std::endl;
 }
  {
-	//LPCTSTR iniFilePath = argv[1];
-	//LPCTSTR sectionName = argv[2];
+	//char* iniFilePath = argv[1];
+	//char* sectionName = argv[2];
 
-	LPCTSTR iniFilePath = L"C:\\conf\\localhost.kafka";
-	LPCTSTR sectionName = L"kafka-global";
+	char* iniFilePath = "C:\\conf\\localhost.kafka";
+	char* sectionName = "kafka-global";
 
 	loadIniFile(iniFilePath, sectionName);
 	char t[255];
 	gets_s(t,1);
 
-	sectionName = L"kafka-topic";
+	sectionName = "kafka-topic";
 
 	loadIniFile(iniFilePath, sectionName);
 	gets_s(t, 1);
