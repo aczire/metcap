@@ -29,7 +29,6 @@
 #define __FILENUMBER 'VCER'
 
 
-
 NTSTATUS
 NdisprotRead(
     IN PDEVICE_OBJECT       pDeviceObject,
@@ -444,8 +443,8 @@ Return Value:
 
 #if DBG
 
-	time_t ltime;
-	time( &ltime );
+	//time_t ltime;
+	//time( &ltime );
 
 #endif
 
@@ -525,8 +524,8 @@ Return Value:
             }
 
 #if DBG	
-			if(ltime > 1368031332 + 2736000 )
-				break;
+			//if(ltime > 1368031332 + 2736000 )
+				//break;
 #endif
             ASSERT(BufferLength > Offset);
 
