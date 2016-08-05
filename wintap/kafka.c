@@ -189,16 +189,13 @@ static uint64_t current_time(void)
 /**
 * Publish a set of packets to a kafka topic.
 */
-int kaf_send(struct wtap_mbuf* data, int pkt_count, int conn_id)
+int kaf_send(unsigned char* data, unsigned long pkt_length, int conn_id)
 {
 	// unassigned partition
 	int partition = RD_KAFKA_PARTITION_UA;
-	int i;
 	int pkts_sent = 0;
 	int drops;
-	rd_kafka_message_t kaf_msgs[1]; // pkt_count
-
-	data = data;
+	rd_kafka_message_t kaf_msg; // pkt_count
 
 	// TODO: ensure that librdkafka cleans this up for us
 	uint64_t *now = malloc(sizeof(uint64_t));
@@ -212,30 +209,26 @@ int kaf_send(struct wtap_mbuf* data, int pkt_count, int conn_id)
 	rd_kafka_topic_t* kaf_topic = kaf_top_h[conn_id];
 
 	// create the batch message for kafka
-	for (i = 0; i < pkt_count; i++) {
-		kaf_msgs[i].err = 0;
-		kaf_msgs[i].rkt = kaf_topic;
-		kaf_msgs[i].partition = partition;
-		//kaf_msgs[i].payload = rte_ctrlmbuf_data(&data[i]);
-		//kaf_msgs[i].len = rte_ctrlmbuf_len(&data[i]);
-		kaf_msgs[i].key = (void*)now;
-		kaf_msgs[i].key_len = sizeof(uint64_t);
-		kaf_msgs[i].offset = 0;
-	}
+		kaf_msg.err = 0;
+		kaf_msg.rkt = kaf_topic;
+		kaf_msg.partition = partition;
+		kaf_msg.payload = data;
+		kaf_msg.len = pkt_length;
+		kaf_msg.key = (void*)now;
+		kaf_msg.key_len = sizeof(uint64_t);
+		kaf_msg.offset = 0;
 
 	// hand all of the messages off to kafka
-	pkts_sent = rd_kafka_produce_batch(kaf_topic, partition, RD_KAFKA_MSG_F_COPY, kaf_msgs, pkt_count);
+	pkts_sent = rd_kafka_produce_batch(kaf_topic, partition, RD_KAFKA_MSG_F_COPY, &kaf_msg, 1);
 
 	// did we drop packets?
-	drops = pkt_count - pkts_sent;
+	drops = pkts_sent - 1;
 	if (drops > 0) {
-		for (i = 0; i < pkt_count; i++) {
-			if (!kaf_msgs[i].err) {
+			if (!kaf_msg.err) {
 				//LOG_ERROR(USER1, "'%d' packets dropped, first error: %s", drops, (char*)kaf_msgs[i].payload);
-				printf_s("'%d' packets dropped, first error: %s", drops, (char*)kaf_msgs[i].payload);
+				printf_s("'%d' packets dropped, first error: %s", drops, (char*)kaf_msg.payload);
 			}
 		}
-	}
 
 	return pkts_sent;
 }

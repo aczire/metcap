@@ -62,6 +62,7 @@
 
 #include <ntddndis.h>
 #include "protuser.h"
+#include "kafka.h"
 
 // this is needed to prevent compiler from complaining about
 // pragma prefast statements below
@@ -74,9 +75,9 @@
 #endif
 
 #if DBG
-#define DEBUGP(stmt)    printf stmt
+#define debug(stmt)    printf stmt
 #else
-#define DEBUGP(stmt)
+#define debug(stmt)
 #endif
 
 #define PRINTF(stmt)    printf stmt
@@ -87,8 +88,8 @@
 
 #define MAX_NDIS_DEVICE_NAME_LEN        256
 
-CHAR            NdisProtDevice[] = "\\\\.\\\\Wintap";
-CHAR *          pNdisProtDevice = &NdisProtDevice[0];
+char            NdisProtDevice[] = "\\\\.\\\\Wintap";
+char *          pNdisProtDevice = &NdisProtDevice[0];
 
 BOOLEAN         DoEnumerate = FALSE;
 BOOLEAN         DoReads = FALSE;
@@ -101,7 +102,7 @@ UCHAR           DstMacAddr[MAC_ADDR_LEN];
 UCHAR           FakeSrcMacAddr[MAC_ADDR_LEN] = {0};
 
 BOOLEAN         bDstMacSpecified = FALSE;
-//CHAR *          pNdisDeviceName = "JUNK";
+//char *          pNdisDeviceName = "JUNK";
 USHORT          EthType = 0x8e88;
 BOOLEAN         bUseFakeAddress = FALSE;
 
@@ -174,7 +175,7 @@ HANDLE
 		);
 	if (Handle == INVALID_HANDLE_VALUE)
 	{
-		DEBUGP(("Creating file failed, error %x\n", GetLastError()));
+		debug(("Creating file failed, error %x\n", GetLastError()));
 		return Handle;
 	}
 	//
@@ -190,7 +191,7 @@ HANDLE
 		&BytesReturned,
 		NULL))
 	{
-		DEBUGP(("IOCTL_NDISIO_BIND_WAIT failed, error %x\n", GetLastError()));
+		debug(("IOCTL_NDISIO_BIND_WAIT failed, error %x\n", GetLastError()));
 		CloseHandle(Handle);
 		Handle = INVALID_HANDLE_VALUE;
 	}
@@ -249,7 +250,7 @@ _Success_(return)
 	PNDISPROT_QUERY_OID  pQueryOid;
 
 
-	DEBUGP(("Trying to get src mac address\n"));
+	debug(("Trying to get src mac address\n"));
 
 	pQueryOid = (PNDISPROT_QUERY_OID)&QueryBuffer[0];
 	pQueryOid->Oid = OID_802_3_CURRENT_ADDRESS;
@@ -267,7 +268,7 @@ _Success_(return)
 
 	if (bSuccess)
 	{
-		DEBUGP(("GetSrcMac: IoControl success, BytesReturned = %d\n",
+		debug(("GetSrcMac: IoControl success, BytesReturned = %d\n",
 			BytesReturned));
 
 #pragma warning(suppress:6202) // buffer overrun warning - enough space allocated in QueryBuffer
@@ -275,7 +276,7 @@ _Success_(return)
 	}
 	else
 	{
-		DEBUGP(("GetSrcMac: IoControl failed: %d\n", GetLastError()));
+		debug(("GetSrcMac: IoControl failed: %d\n", GetLastError()));
 	}
 
 	return (bSuccess);
@@ -551,7 +552,7 @@ int wmain(int argc, _TCHAR* argv[])
 		DeviceNameLength = min((wcslen(NdisDeviceNameIn) * sizeof(TCHAR)), _countof(NdisDeviceNameIn));
 	}
 
-	DEBUGP(("Source Adapter %ws with length: %I64u\n", NdisDeviceNameIn, DeviceNameLength));
+	debug(("Source Adapter %ws with length: %I64u\n", NdisDeviceNameIn, DeviceNameLength));
 
 	if (!OpenNdisDevice(DeviceHandleIn, NdisDeviceNameIn, DeviceNameLength))
 	{
@@ -611,7 +612,7 @@ int wmain(int argc, _TCHAR* argv[])
 		DeviceNameLength = min((wcslen(NdisDeviceNameOut) * sizeof(TCHAR)), _countof(NdisDeviceNameOut));
 	}
 
-	DEBUGP(("Destination Adapter %ws with length: %I64u\n", NdisDeviceNameOut, DeviceNameLength));
+	debug(("Destination Adapter %ws with length: %I64u\n", NdisDeviceNameOut, DeviceNameLength));
 
 	if (!OpenNdisDevice(DeviceHandleOut, NdisDeviceNameOut, DeviceNameLength))
 	{
@@ -723,7 +724,7 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 	INT         ReadCount = 0;
 	BOOLEAN     bSuccess = FALSE;
 	ULONG       BytesRead;
-	DWORD       BytesWritten;
+	//DWORD       BytesWritten;
 	PETH_HEADER pEthHeader;
 
 	/*
@@ -780,9 +781,9 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 				EnterCriticalSection(&print_cs);					
 
 				if(ad_couple->state == 0)
-					DEBUGP((">>: read pkt - %d bytes\n", BytesRead));
+					debug((">>: read pkt - %d bytes\n", BytesRead));
 				else
-					DEBUGP(("<<: read pkt - %d bytes\n", BytesRead));
+					debug(("<<: read pkt - %d bytes\n", BytesRead));
 
 				LeaveCriticalSection(&print_cs); 
 #endif
@@ -790,19 +791,22 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 				* Send the just received packet to the output adaper
 				*/
 				// Changing the MAC address.
-				// Hope this will allow us not to overflow the capturing interface.
+				// Hope this will allow us not to overflow the capturing interface
+				// in case if something happens.
 				pEthHeader = (PETH_HEADER)pReadBuf;
 				memcpy(pEthHeader->DstAddr, DstMacAddr, MAC_ADDR_LEN);
 
 
-				kaf_send();
+				bSuccess = (BYTE)kaf_send(pReadBuf, BytesRead, 0);
 
+				/*
 				bSuccess = (BOOLEAN)WriteFile(
 					ad_couple->hNdisDeviceOut,
 					pReadBuf,
 					BytesRead,
 					&BytesWritten,
-					NULL);
+					NULL);*/
+
 				if (!bSuccess)
 				{
 					EnterCriticalSection(&print_cs);
