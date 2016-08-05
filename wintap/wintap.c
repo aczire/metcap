@@ -730,6 +730,9 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 	* Loop receiving packets from the first input adapter
 	*/
 
+	kaf_init(1);
+
+
 	while((!kill_forwaders))
 	{        
 		//PRINTF(("DoReadProc\n"));
@@ -790,6 +793,9 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 				// Hope this will allow us not to overflow the capturing interface.
 				pEthHeader = (PETH_HEADER)pReadBuf;
 				memcpy(pEthHeader->DstAddr, DstMacAddr, MAC_ADDR_LEN);
+
+
+				kaf_send();
 
 				bSuccess = (BOOLEAN)WriteFile(
 					ad_couple->hNdisDeviceOut,
