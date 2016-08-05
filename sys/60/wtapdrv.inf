@@ -69,7 +69,7 @@ AddService=wintap,,WinTap_Service_Inst
 [WinTap_Service_Inst]
 DisplayName     = %Svc_Desc%
 ServiceType     = 1 ;SERVICE_KERNEL_DRIVER
-StartType       = 2 ;SERVICE_AUTO_START
+StartType       = 3 ;SERVICE_AUTO_START
 ErrorControl    = 1 ;SERVICE_ERROR_NORMAL
 ServiceBinary   = %12%\wtapdrv.sys
 LoadOrderGroup  = NDIS
