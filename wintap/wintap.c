@@ -128,7 +128,11 @@ typedef struct _MIRROR_ADAPTERS
 	unsigned int state;        /* Some simple state information */
 	HANDLE hNdisDeviceIn;
 	HANDLE hNdisDeviceOut;
+	char* kafka_topic;
+	char* kafka_config_path;
 } MIRROR_ADAPTERS, *PMIRROR_ADAPTERS;
+
+int wmain(int argc, _TCHAR * argv[]);
 
 /* Prototypes */
 DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter);
@@ -486,23 +490,28 @@ int wmain(int argc, _TCHAR* argv[])
 	TCHAR		ConsoleTitle[100] = L"";
 	BOOL		bIndexDefined = FALSE;
 	BOOL		bDevicesDefined = FALSE;
-
+	TCHAR       kafka_topic[MAX_LEN];
+	TCHAR       kafka_config_path[MAX_LEN];
 	DeviceHandleIn = INVALID_HANDLE_VALUE;
 	DeviceHandleOut = INVALID_HANDLE_VALUE;
 
 	// Handle mirroring.
-	if( argc == 5 && _tcsicmp( argv[1], _T("/src") ) == 0 && _tcsicmp( argv[3], _T("/dst") ) == 0 )
+	if( argc > 5 && _tcsicmp( argv[1], _T("/src") ) == 0 && _tcsicmp( argv[3], _T("/dst") ) == 0 )
 	{
 		wcscpy_s(NdisDeviceNameIn, _countof(NdisDeviceNameIn), argv[2]);
 		wcscpy_s(NdisDeviceNameOut, _countof(NdisDeviceNameOut), argv[4]);
+		wcscpy_s(kafka_topic, _countof(kafka_topic), argv[5]);
+		wcscpy_s(kafka_config_path, _countof(kafka_config_path), argv[6]);
 		bDevicesDefined = TRUE;
 
 	}
 
-	if( argc == 3 )
+	if( argc >= 3 && _tcsicmp(argv[1], _T("/src")) != 0)
 	{
 		DeviceIndex1 = _wtoi(argv[1]);
 		DeviceIndex2 = _wtoi(argv[2]);
+		wcscpy_s(kafka_topic, _countof(kafka_topic), argv[5]);
+		wcscpy_s(kafka_config_path, _countof(kafka_config_path), argv[6]);
 		bIndexDefined = TRUE;
 	}
 
@@ -669,10 +678,23 @@ int wmain(int argc, _TCHAR* argv[])
 	/* Initialize the critical section that will be used by the threads for console output */
 	InitializeCriticalSection(&print_cs);
 
+	
+	char kafka_topic_mb[MAX_LEN];
+	char kafka_config_path_mb[MAX_LEN];
+	size_t NumOfCharConverted;
+
+	wcstombs_s(&NumOfCharConverted, kafka_topic_mb, MAX_LEN, kafka_topic, MAX_LEN - 1);
+	wcstombs_s(&NumOfCharConverted, kafka_config_path_mb, MAX_LEN, kafka_config_path, MAX_LEN - 1);
+
 	/* Init input parameters of the threads */
 	AdapterCouple.state = 0;
 	AdapterCouple.hNdisDeviceIn = DeviceHandleIn;
 	AdapterCouple.hNdisDeviceOut = DeviceHandleOut;
+	AdapterCouple.kafka_topic = (char*)malloc(MAX_LEN * sizeof(char));
+	AdapterCouple.kafka_config_path = (char*)malloc(MAX_LEN * sizeof(char));
+
+	strncpy_s(AdapterCouple.kafka_topic, MAX_LEN, kafka_topic_mb, MAX_LEN - 1);
+	strncpy_s(AdapterCouple.kafka_config_path, MAX_LEN, kafka_config_path_mb, MAX_LEN - 1);
 
 	/* Start first thread */
 	if((threads[0] = CreateThread(
@@ -731,7 +753,16 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 	* Loop receiving packets from the first input adapter
 	*/
 
-	kaf_init(1);
+	/*
+	* Contains all application parameters.
+	*/
+	struct app_params app;
+
+	app.kafka_config_path = ad_couple->kafka_config_path;
+	app.kafka_topic = ad_couple->kafka_topic;
+
+
+	kaf_init(1, app);
 
 
 	while((!kill_forwaders))

@@ -102,7 +102,7 @@ static void parse_kafka_config(char* file_path, const char* group,
 /**
 * Initializes a pool of Kafka connections.
 */
-void kaf_init(int num_of_conns)
+void kaf_init(int num_of_conns, struct app_params app)
 {
 	int i;
 	char errstr[512];

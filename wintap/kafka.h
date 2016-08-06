@@ -37,7 +37,7 @@ struct app_params {
 	uint32_t enabled_port_mask;
 	char* kafka_topic;
 	char* kafka_config_path;
-} __rte_cache_aligned;
+} __wtap_app_params;
 
 struct wtap_mbuf {
 	uint32_t enabled_port_mask;
@@ -45,15 +45,11 @@ struct wtap_mbuf {
 	char* kafka_config_path;
 } __wtap_mbuf;
 
-/*
-* Contains all application parameters.
-*/
-struct app_params app;
 
 /**
 * Initializes a pool of Kafka connections.
 */
-void kaf_init(int num_of_conns);
+void kaf_init(int num_of_conns, struct app_params app);
 
 /**
 * Publish a set of packets to a kafka topic.
