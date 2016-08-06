@@ -510,8 +510,8 @@ int wmain(int argc, _TCHAR* argv[])
 	{
 		DeviceIndex1 = _wtoi(argv[1]);
 		DeviceIndex2 = _wtoi(argv[2]);
-		wcscpy_s(kafka_topic, _countof(kafka_topic), argv[5]);
-		wcscpy_s(kafka_config_path, _countof(kafka_config_path), argv[6]);
+		wcscpy_s(kafka_topic, _countof(kafka_topic), argv[3]);
+		wcscpy_s(kafka_config_path, _countof(kafka_config_path), argv[4]);
 		bIndexDefined = TRUE;
 	}
 
