@@ -21,10 +21,10 @@
 [kafka-global]
 
 # identifies the client to kafka
-client.id = pcap-localhost
+client.id = pcap-103
 
 # initial list of kafka brokers
-metadata.broker.list = localhost:9092
+metadata.broker.list = 192.168.0.103:9092
 
 # max number of messages allowed on the producer queue
 queue.buffering.max.messages = 10000000
