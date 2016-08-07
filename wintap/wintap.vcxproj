@@ -177,7 +177,7 @@
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);UNICODE=1</PreprocessorDefinitions>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);_UNICODE=1</PreprocessorDefinitions>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);_WIN32WIN_;DBG;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);_WIN32WIN_;DBG;_DEBUG;</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Midl>

@@ -493,9 +493,9 @@ int wmain(int argc, _TCHAR* argv[]) {
 			return -1;
 		}
 
-		PRINTF(("\nEnter the Kafka Topic to use:"));
+		PRINTF(("\nEnter the Kafka Topic to use. [metron]:"));
 		wscanf_s(L"%s", kafka_topic, (unsigned)_countof(kafka_topic));
-		PRINTF(("\nEnter the Kafka config path to use:"));
+		PRINTF(("\nEnter the Kafka config path to use. [C:\\WinTap\\code\\wintap\\conf\\localhost.kafka]:"));
 		wscanf_s(L"%s", kafka_config_path, (unsigned)_countof(kafka_config_path));
 	}
 
