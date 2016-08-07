@@ -49,7 +49,7 @@ struct wtap_mbuf {
 /**
 * Initializes a pool of Kafka connections.
 */
-void kaf_init(int num_of_conns, struct app_params app);
+int kaf_init(int num_of_conns, struct app_params app);
 
 /**
 * Publish a set of packets to a kafka topic.

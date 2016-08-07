@@ -3,14 +3,14 @@
 * Copyright 2013, New Tribes Mission Inc, (ntm.org)
 *
 * All rights reserved.
-* 
-* This file is part of WinTAP. WinTAP is released under 
+*
+* This file is part of WinTAP. WinTAP is released under
 * GNU General Public License, version 2.
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -19,13 +19,13 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
-* 
+*
 */
 
 /*
-* This simple program to setup a uni-directional, user-level bridge to 
+* This simple program to setup a uni-directional, user-level bridge to
 * create a soft-tap, like daemonlogger.
-* It opens two adapters specified by the user and starts a packet 
+* It opens two adapters specified by the user and starts a packet
 * copying thread. It receives packets from adapter 1 and sends them down
 * to adapter 2.
 */
@@ -95,11 +95,11 @@ BOOLEAN         DoEnumerate = FALSE;
 BOOLEAN         DoReads = FALSE;
 INT             NumberOfPackets = -1;
 ULONG           PacketLength = 65536;	// Portion of the packet to capture.
-// 65536 grants that the whole packet will be captured on every link layer.
+										// 65536 grants that the whole packet will be captured on every link layer.
 
 UCHAR           SrcMacAddr[MAC_ADDR_LEN];
 UCHAR           DstMacAddr[MAC_ADDR_LEN];
-UCHAR           FakeSrcMacAddr[MAC_ADDR_LEN] = {0};
+UCHAR           FakeSrcMacAddr[MAC_ADDR_LEN] = { 0 };
 
 BOOLEAN         bDstMacSpecified = FALSE;
 //char *          pNdisDeviceName = "JUNK";
@@ -112,8 +112,7 @@ INT			DeviceIndex1, DeviceIndex2;
 
 #include <pshpack1.h>
 
-typedef struct _ETH_HEADER
-{
+typedef struct _ETH_HEADER {
 	UCHAR       DstAddr[MAC_ADDR_LEN];
 	UCHAR       SrcAddr[MAC_ADDR_LEN];
 	USHORT      EthType;
@@ -123,8 +122,7 @@ typedef struct _ETH_HEADER
 
 
 /* Storage data structure used to pass parameters to the threads */
-typedef struct _MIRROR_ADAPTERS
-{
+typedef struct _MIRROR_ADAPTERS {
 	unsigned int state;        /* Some simple state information */
 	HANDLE hNdisDeviceIn;
 	HANDLE hNdisDeviceOut;
@@ -150,10 +148,9 @@ volatile int kill_forwaders = 0;
 /*******************************************************************/
 
 HANDLE
-	OpenHandle(
+OpenHandle(
 	_In_ PSTR pDeviceName
-	)
-{
+) {
 	DWORD   DesiredAccess;
 	DWORD   ShareMode;
 	LPSECURITY_ATTRIBUTES   lpSecurityAttributes = NULL;
@@ -163,7 +160,7 @@ HANDLE
 	HANDLE  Handle;
 	DWORD   BytesReturned;
 
-	DesiredAccess = GENERIC_READ|GENERIC_WRITE;
+	DesiredAccess = GENERIC_READ | GENERIC_WRITE;
 	ShareMode = 0;
 	CreationDistribution = OPEN_EXISTING;
 	FlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
@@ -176,9 +173,8 @@ HANDLE
 		CreationDistribution,
 		FlagsAndAttributes,
 		NULL
-		);
-	if (Handle == INVALID_HANDLE_VALUE)
-	{
+	);
+	if (Handle == INVALID_HANDLE_VALUE) {
 		debug(("Creating file failed, error %x\n", GetLastError()));
 		return Handle;
 	}
@@ -193,8 +189,7 @@ HANDLE
 		NULL,
 		0,
 		&BytesReturned,
-		NULL))
-	{
+		NULL)) {
 		debug(("IOCTL_NDISIO_BIND_WAIT failed, error %x\n", GetLastError()));
 		CloseHandle(Handle);
 		Handle = INVALID_HANDLE_VALUE;
@@ -205,12 +200,11 @@ HANDLE
 
 
 BOOL
-	OpenNdisDevice(
+OpenNdisDevice(
 	_In_ HANDLE                     Handle,
 	_In_ PCTSTR                      pszDeviceName,
 	_In_ SIZE_T						lDeviceNameLength
-	)
-{
+) {
 	DWORD   BytesReturned;
 	DWORD	DeviceNameLength;
 	HRESULT hr = S_OK;
@@ -221,10 +215,9 @@ BOOL
 	OutputDebugString(_T("Trying to access NDIS Device: "));
 	OutputDebugString(pszDeviceName);
 	OutputDebugString(_T("\n"));
-	
+
 	hr = SIZETToDWord(lDeviceNameLength, &DeviceNameLength);
-	if(FAILED(hr))
-	{
+	if (FAILED(hr)) {
 		PRINTF(("\nFailed to access NDIS Device: %ws \n", pszDeviceName));
 		return FALSE;
 	}
@@ -242,12 +235,11 @@ BOOL
 }
 
 _Success_(return)
-	BOOL
-	GetSrcMac(
+BOOL
+GetSrcMac(
 	_In_ HANDLE  Handle,
 	_Out_writes_bytes_(MAC_ADDR_LEN) PUCHAR  pSrcMacAddr
-	)
-{
+) {
 	DWORD       BytesReturned;
 	BOOLEAN     bSuccess;
 	UCHAR       QueryBuffer[sizeof(NDISPROT_QUERY_OID) + MAC_ADDR_LEN];
@@ -270,16 +262,14 @@ _Success_(return)
 		&BytesReturned,
 		NULL);
 
-	if (bSuccess)
-	{
+	if (bSuccess) {
 		debug(("GetSrcMac: IoControl success, BytesReturned = %d\n",
 			BytesReturned));
 
 #pragma warning(suppress:6202) // buffer overrun warning - enough space allocated in QueryBuffer
 		memcpy(pSrcMacAddr, pQueryOid->Data, MAC_ADDR_LEN);
 	}
-	else
-	{
+	else {
 		debug(("GetSrcMac: IoControl failed: %d\n", GetLastError()));
 	}
 
@@ -288,11 +278,10 @@ _Success_(return)
 
 
 _Success_(return)
-	INT
-	EnumerateDevices(
+INT
+EnumerateDevices(
 	_In_ HANDLE  Handle
-	)
-{
+) {
 	typedef __declspec(align(MEMORY_ALLOCATION_ALIGNMENT)) QueryBindingCharBuf;
 	QueryBindingCharBuf		Buf[1024];
 	DWORD       		BufLength = sizeof(Buf);
@@ -305,8 +294,7 @@ _Success_(return)
 	i = 0;
 	for (pQueryBinding->BindingIndex = i;
 		/* NOTHING */;
-		pQueryBinding->BindingIndex = ++i)
-	{
+		pQueryBinding->BindingIndex = ++i) {
 		if (DeviceIoControl(
 			Handle,
 			IOCTL_NDISPROT_QUERY_BINDING,
@@ -315,20 +303,17 @@ _Success_(return)
 			Buf,
 			BufLength,
 			&BytesWritten,
-			NULL))
-		{
+			NULL)) {
 			PRINTF(("%2d. %ws\n     - %ws\n",
 				pQueryBinding->BindingIndex,
 				(WCHAR *)((PUCHAR)pQueryBinding + pQueryBinding->DeviceNameOffset),
-				(WCHAR *)((PUCHAR )pQueryBinding + pQueryBinding->DeviceDescrOffset)));
+				(WCHAR *)((PUCHAR)pQueryBinding + pQueryBinding->DeviceDescrOffset)));
 
 			memset(Buf, 0, BufLength);
 		}
-		else
-		{
+		else {
 			ULONG   rc = GetLastError();
-			if (rc != ERROR_NO_MORE_ITEMS)
-			{
+			if (rc != ERROR_NO_MORE_ITEMS) {
 				PRINTF(("\nNo interfaces found! Make sure WinTap driver is installed.\n, error %d\n", rc));
 			}
 			break;
@@ -340,13 +325,12 @@ _Success_(return)
 
 
 BOOL
-	GetDevice(
+GetDevice(
 	_In_ HANDLE  Handle,
 	_In_ int  bindingIndex,
 	_Out_ PTSTR pDeviceName,
 	_Out_ PSIZE_T pDeviceNameLength
-	)
-{
+) {
 	typedef __declspec(align(MEMORY_ALLOCATION_ALIGNMENT)) QueryBindingCharBuf;
 	QueryBindingCharBuf		Buf[1024];
 
@@ -368,12 +352,11 @@ BOOL
 		BufLength,
 		&BytesWritten,
 		NULL);
-	if (bSuccess)   
-	{
+	if (bSuccess) {
 		PRINTF(("%2d. %ws\n     - %ws\n",
 			pQueryBinding->BindingIndex,
 			(WCHAR *)((PUCHAR)pQueryBinding + pQueryBinding->DeviceNameOffset),
-			(WCHAR *)((PUCHAR )pQueryBinding + pQueryBinding->DeviceDescrOffset)));
+			(WCHAR *)((PUCHAR)pQueryBinding + pQueryBinding->DeviceDescrOffset)));
 
 #pragma warning(suppress:6202) // buffer overrun warning - enough space allocated in QueryBuffer
 		memcpy(pDeviceName, ((PUCHAR)pQueryBinding + pQueryBinding->DeviceNameOffset), pQueryBinding->DeviceNameLength);
@@ -382,29 +365,24 @@ BOOL
 
 		return bSuccess;
 	}
-	else
-	{
+	else {
 		ULONG   rc = GetLastError();
-		if (rc != ERROR_NO_MORE_ITEMS)
-		{
+		if (rc != ERROR_NO_MORE_ITEMS) {
 			PRINTF(("\nNo interfaces found! Make sure WinTap driver is installed.\n, error %d\n", rc));
 		}
 		return bSuccess;
 	}
 }
 
-BOOL OpenTapDevice()
-{
+BOOL OpenTapDevice() {
 	DeviceHandleIn = OpenHandle(pNdisProtDevice);
-	if (DeviceHandleIn == INVALID_HANDLE_VALUE)
-	{
+	if (DeviceHandleIn == INVALID_HANDLE_VALUE) {
 		PRINTF(("Failed to open source device %s\n", pNdisProtDevice));
 		return FALSE;
 	}
 
 	DeviceHandleOut = OpenHandle(pNdisProtDevice);
-	if (DeviceHandleOut == INVALID_HANDLE_VALUE)
-	{
+	if (DeviceHandleOut == INVALID_HANDLE_VALUE) {
 		PRINTF(("Failed to open destination device %s\n", pNdisProtDevice));
 		return FALSE;
 	}
@@ -414,25 +392,20 @@ BOOL OpenTapDevice()
 
 BOOL GetSrcDst(
 	_In_ INT MaxDeviceIndex,
-	_In_ BOOL bIndexDefined)
-{
+	_In_ BOOL bIndexDefined) {
 	/* Get the first interface number*/
-	PRINTF(("\nEnter the number of the first interface to use (0-%d):",MaxDeviceIndex-1));
+	PRINTF(("\nEnter the number of the first interface to use (0-%d):", MaxDeviceIndex - 1));
 
-	if( !bIndexDefined )
-	{
+	if (!bIndexDefined) {
 		scanf_s("%d", &DeviceIndex1);
 	}
-	else
-	{
+	else {
 		printf("%d\n", DeviceIndex1);
 	}
 
-	if(DeviceIndex1 < 0 || DeviceIndex1 > MaxDeviceIndex-1 )
-	{
+	if (DeviceIndex1 < 0 || DeviceIndex1 > MaxDeviceIndex - 1) {
 		PRINTF(("\nSource Interface number out of range.\n"));
-		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-		{
+		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
 		}
@@ -440,33 +413,27 @@ BOOL GetSrcDst(
 	}
 
 	/* Get the second interface number*/
-	PRINTF(("Enter the number of the second interface to use (0-%d):",MaxDeviceIndex-1));
+	PRINTF(("Enter the number of the second interface to use (0-%d):", MaxDeviceIndex - 1));
 
-	if( !bIndexDefined )
-	{
+	if (!bIndexDefined) {
 		scanf_s("%d", &DeviceIndex2);
 	}
-	else
-	{
+	else {
 		printf("%d\n", DeviceIndex2);
 	}
 
-	if(DeviceIndex2 < 0 || DeviceIndex2 > MaxDeviceIndex-1)
-	{
+	if (DeviceIndex2 < 0 || DeviceIndex2 > MaxDeviceIndex - 1) {
 		PRINTF(("\nDestination Interface number out of range.\n"));
-		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-		{
+		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
 		}
 		return FALSE;
 	}
 
-	if(DeviceIndex1 == DeviceIndex2 )
-	{
+	if (DeviceIndex1 == DeviceIndex2) {
 		PRINTF(("\nCannot bridge packets on the same interface.\n"));
-		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-		{
+		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
 		}
@@ -476,8 +443,7 @@ BOOL GetSrcDst(
 	return TRUE;
 }
 
-int wmain(int argc, _TCHAR* argv[])
-{
+int wmain(int argc, _TCHAR* argv[]) {
 	//INT			DeviceIndex1, DeviceIndex2;
 	INT			MaxDeviceIndex = 0;
 	//HANDLE      DeviceHandleIn;
@@ -496,8 +462,7 @@ int wmain(int argc, _TCHAR* argv[])
 	DeviceHandleOut = INVALID_HANDLE_VALUE;
 
 	// Handle mirroring.
-	if( argc > 5 && _tcsicmp( argv[1], _T("/src") ) == 0 && _tcsicmp( argv[3], _T("/dst") ) == 0 )
-	{
+	if (argc > 5 && _tcsicmp(argv[1], _T("/src")) == 0 && _tcsicmp(argv[3], _T("/dst")) == 0) {
 		wcscpy_s(NdisDeviceNameIn, _countof(NdisDeviceNameIn), argv[2]);
 		wcscpy_s(NdisDeviceNameOut, _countof(NdisDeviceNameOut), argv[4]);
 		wcscpy_s(kafka_topic, _countof(kafka_topic), argv[5]);
@@ -506,8 +471,7 @@ int wmain(int argc, _TCHAR* argv[])
 
 	}
 
-	if( argc >= 3 && _tcsicmp(argv[1], _T("/src")) != 0)
-	{
+	if (argc >= 3 && _tcsicmp(argv[1], _T("/src")) != 0) {
 		DeviceIndex1 = _wtoi(argv[1]);
 		DeviceIndex2 = _wtoi(argv[2]);
 		wcscpy_s(kafka_topic, _countof(kafka_topic), argv[3]);
@@ -515,8 +479,7 @@ int wmain(int argc, _TCHAR* argv[])
 		bIndexDefined = TRUE;
 	}
 
-	if( !OpenTapDevice())
-	{
+	if (!OpenTapDevice()) {
 		exit(1);
 	}
 
@@ -525,29 +488,29 @@ int wmain(int argc, _TCHAR* argv[])
 
 	//Get source and destination interfaces
 
-	if( !bDevicesDefined )
-	{
-		if(!GetSrcDst(MaxDeviceIndex, bIndexDefined))
-		{
+	if (!bDevicesDefined) {
+		if (!GetSrcDst(MaxDeviceIndex, bIndexDefined)) {
 			return -1;
 		}
+
+		PRINTF(("\nEnter the Kafka Topic to use:"));
+		wscanf_s(L"%s", kafka_topic, (unsigned)_countof(kafka_topic));
+		PRINTF(("\nEnter the Kafka config path to use:"));
+		wscanf_s(L"%s", kafka_config_path, (unsigned)_countof(kafka_config_path));
 	}
 
 	/*
 	* Open the specified couple of adapters
 	*/
 
-	/* 
+	/*
 	* Open the first adapter.
 	*/
 
-	if( !bDevicesDefined)
-	{
-		if (!GetDevice(DeviceHandleIn, DeviceIndex1, NdisDeviceNameIn, pDeviceNameLength))
-		{
+	if (!bDevicesDefined) {
+		if (!GetDevice(DeviceHandleIn, DeviceIndex1, NdisDeviceNameIn, pDeviceNameLength)) {
 			PRINTF(("\nUnable to get the source adapter. Device is not supported by WinTap\n"));
-			if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-			{
+			if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 				CloseHandle(DeviceHandleIn);
 				CloseHandle(DeviceHandleOut);
 			}
@@ -556,18 +519,15 @@ int wmain(int argc, _TCHAR* argv[])
 
 		NdisDeviceNameIn[DeviceNameLength] = L'\0';
 	}
-	else
-	{
+	else {
 		DeviceNameLength = min((wcslen(NdisDeviceNameIn) * sizeof(TCHAR)), _countof(NdisDeviceNameIn));
 	}
 
 	debug(("Source Adapter %ws with length: %I64u\n", NdisDeviceNameIn, DeviceNameLength));
 
-	if (!OpenNdisDevice(DeviceHandleIn, NdisDeviceNameIn, DeviceNameLength))
-	{
+	if (!OpenNdisDevice(DeviceHandleIn, NdisDeviceNameIn, DeviceNameLength)) {
 		PRINTF(("\nUnable to open the source adapter %ws. Device not supported by WinTap\n", NdisDeviceNameIn));
-		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-		{
+		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
 		}
@@ -576,11 +536,9 @@ int wmain(int argc, _TCHAR* argv[])
 
 	PRINTF(("\nOpened source interface successfully!\n"));
 
-	if (!GetSrcMac(DeviceHandleIn, SrcMacAddr))
-	{
+	if (!GetSrcMac(DeviceHandleIn, SrcMacAddr)) {
 		PRINTF(("\nUnable to get the source adapter MAC. Device is not supported by WinTap\n"));
-		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-		{
+		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
 		}
@@ -596,18 +554,15 @@ int wmain(int argc, _TCHAR* argv[])
 		SrcMacAddr[4],
 		SrcMacAddr[5]));
 
-	/* 
+	/*
 	* Open the second adapter.
 	*/
 
-	if(!bDevicesDefined)
-	{
+	if (!bDevicesDefined) {
 
-		if (!GetDevice(DeviceHandleOut, DeviceIndex2, NdisDeviceNameOut, pDeviceNameLength))
-		{
+		if (!GetDevice(DeviceHandleOut, DeviceIndex2, NdisDeviceNameOut, pDeviceNameLength)) {
 			PRINTF(("\nUnable to get the destination adapter. Device is not supported by WinTap\n"));
-			if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-			{
+			if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 				CloseHandle(DeviceHandleIn);
 				CloseHandle(DeviceHandleOut);
 			}
@@ -616,18 +571,15 @@ int wmain(int argc, _TCHAR* argv[])
 
 		NdisDeviceNameOut[DeviceNameLength] = L'\0';
 	}
-	else
-	{
+	else {
 		DeviceNameLength = min((wcslen(NdisDeviceNameOut) * sizeof(TCHAR)), _countof(NdisDeviceNameOut));
 	}
 
 	debug(("Destination Adapter %ws with length: %I64u\n", NdisDeviceNameOut, DeviceNameLength));
 
-	if (!OpenNdisDevice(DeviceHandleOut, NdisDeviceNameOut, DeviceNameLength))
-	{
+	if (!OpenNdisDevice(DeviceHandleOut, NdisDeviceNameOut, DeviceNameLength)) {
 		PRINTF(("\nUnable to open the destination adapter. Device is not supported by WinTap\n"));
-		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-		{
+		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
 		}
@@ -636,11 +588,9 @@ int wmain(int argc, _TCHAR* argv[])
 
 	PRINTF(("\nOpened destination interface successfully!\n"));
 
-	if (!GetSrcMac(DeviceHandleOut, DstMacAddr))
-	{
+	if (!GetSrcMac(DeviceHandleOut, DstMacAddr)) {
 		PRINTF(("\nUnable to get the destination adapter MAC. Device not supported by WinTap\n"));
-		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-		{
+		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
 		}
@@ -656,7 +606,7 @@ int wmain(int argc, _TCHAR* argv[])
 		DstMacAddr[4],
 		DstMacAddr[5]));
 
-	wsprintf( ConsoleTitle, L"Reflecting %02x:%02x:%02x:%02x:%02x:%02x >> %02x:%02x:%02x:%02x:%02x:%02x ", 
+	wsprintf(ConsoleTitle, L"Reflecting %02x:%02x:%02x:%02x:%02x:%02x >> %02x:%02x:%02x:%02x:%02x:%02x ",
 		SrcMacAddr[0],
 		SrcMacAddr[1],
 		SrcMacAddr[2],
@@ -669,16 +619,16 @@ int wmain(int argc, _TCHAR* argv[])
 		DstMacAddr[3],
 		DstMacAddr[4],
 		DstMacAddr[5]);
-	SetConsoleTitle( ConsoleTitle );
+	SetConsoleTitle(ConsoleTitle);
 
-	/* 
-	* Start the threads that will forward the packets 
+	/*
+	* Start the threads that will forward the packets
 	*/
 
 	/* Initialize the critical section that will be used by the threads for console output */
 	InitializeCriticalSection(&print_cs);
 
-	
+
 	char kafka_topic_mb[MAX_LEN];
 	char kafka_config_path_mb[MAX_LEN];
 	size_t NumOfCharConverted;
@@ -697,20 +647,18 @@ int wmain(int argc, _TCHAR* argv[])
 	strncpy_s(AdapterCouple.kafka_config_path, MAX_LEN, kafka_config_path_mb, MAX_LEN - 1);
 
 	/* Start first thread */
-	if((threads[0] = CreateThread(
+	if ((threads[0] = CreateThread(
 		NULL,
 		0,
 		CaptureAndForwardThread,
 		&AdapterCouple,
 		0,
-		NULL)) == NULL)
-	{
+		NULL)) == NULL) {
 		fprintf(stderr, "error creating the first forward thread");
 
 		/* Close the adapters */
 		PRINTF(("\nError creating the forward thread\n"));
-		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE)
-		{
+		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
 		}
@@ -722,9 +670,9 @@ int wmain(int argc, _TCHAR* argv[])
 	*/
 	signal(SIGINT, ctrlc_handler);
 
-	/* 
-	* Done! 
-	* Wait for the Greek calends... 
+	/*
+	* Done!
+	* Wait for the Greek calends...
 	*/
 	printf("\nStarted reflecting the adapter...\n");
 	Sleep(INFINITE);
@@ -735,8 +683,7 @@ int wmain(int argc, _TCHAR* argv[])
 * Forwarding thread.
 * Gets the packets from the input adapter and sends them to the output one.
 *******************************************************************/
-DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
-{
+DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter) {
 	//	const u_char *pkt_data;
 	//	int res = 0;
 	MIRROR_ADAPTERS* ad_couple = lpParameter;
@@ -762,22 +709,21 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 	app.kafka_topic = ad_couple->kafka_topic;
 
 
-	kaf_init(1, app);
+	if (kaf_init(1, app) != 0) {
+		return 0;
+	}
 
 
-	while((!kill_forwaders))
-	{        
+	while ((!kill_forwaders)) {
 		//PRINTF(("DoReadProc\n"));
 
-		do
-		{
+		do {
 			ReadCount = 0;
 			//while (TRUE)
 			//{
 			pReadBuf = malloc(PacketLength);
 
-			if (pReadBuf == NULL)
-			{
+			if (pReadBuf == NULL) {
 				PRINTF(("DoReadProc: failed to alloc %d bytes\n", PacketLength));
 				break;
 			}
@@ -790,33 +736,31 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 				&BytesRead,
 				NULL);
 
-			if (!bSuccess)
-			{
+			if (!bSuccess) {
 				EnterCriticalSection(&print_cs);
 				PRINTF(("DoReadProc: ReadFile failed on Handle %p, error %x\n",
 					ad_couple->hNdisDeviceIn, GetLastError()));
 				LeaveCriticalSection(&print_cs);
 				break;
 			}
-			else
-			{
+			else {
 				ReadCount++;
 
 #if _DEBUG
-				/* 
+				/*
 				* Print something, just to show when we have activity.
 				* BEWARE: acquiring a critical section and printing strings with printf
-				* is something inefficient that you seriously want to avoid in your packet loop!    
+				* is something inefficient that you seriously want to avoid in your packet loop!
 				* However, since this DEBUG mode, we privilege visual output to efficiency.
 				*/
-				EnterCriticalSection(&print_cs);					
+				EnterCriticalSection(&print_cs);
 
-				if(ad_couple->state == 0)
+				if (ad_couple->state == 0)
 					debug((">>: read pkt - %d bytes\n", BytesRead));
 				else
 					debug(("<<: read pkt - %d bytes\n", BytesRead));
 
-				LeaveCriticalSection(&print_cs); 
+				LeaveCriticalSection(&print_cs);
 #endif
 				/*
 				* Send the just received packet to the output adaper
@@ -832,32 +776,28 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 
 				/*
 				bSuccess = (BOOLEAN)WriteFile(
-					ad_couple->hNdisDeviceOut,
-					pReadBuf,
-					BytesRead,
-					&BytesWritten,
-					NULL);*/
+				ad_couple->hNdisDeviceOut,
+				pReadBuf,
+				BytesRead,
+				&BytesWritten,
+				NULL);*/
 
-				if (!bSuccess)
-				{
+				if (!bSuccess) {
 					EnterCriticalSection(&print_cs);
 					PRINTF(("DoWriteProc: WriteFile failed on Handle %p\n", ad_couple->hNdisDeviceOut));
 					LeaveCriticalSection(&print_cs);
 					break;
 				}
-				else
-				{
+				else {
 					n_fwd++;
 				}
 
-				if (pReadBuf)
-				{
+				if (pReadBuf) {
 					free(pReadBuf);
 				}
-			}				
+			}
 			//}
-		}
-		while (FALSE);
+		} while (FALSE);
 
 		//if (pReadBuf)
 		//{
@@ -870,17 +810,15 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 
 	// We're out of the main loop. Check the reason.
 
-	if (!bSuccess)
-	{
+	if (!bSuccess) {
 		EnterCriticalSection(&print_cs);
 
 		printf("Error capturing the packets\n");
 		fflush(stdout);
 
-		LeaveCriticalSection(&print_cs); 
+		LeaveCriticalSection(&print_cs);
 	}
-	else
-	{
+	else {
 		EnterCriticalSection(&print_cs);
 
 		printf("End of bridging on interface %u. Forwarded packets:%u\n",
@@ -899,8 +837,7 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter)
 * We order the threads to die and then we patiently wait for their
 * suicide.
 *******************************************************************/
-void ctrlc_handler(int sig)
-{
+void ctrlc_handler(int sig) {
 	/*
 	* unused variable
 	*/

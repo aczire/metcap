@@ -102,7 +102,7 @@ static void parse_kafka_config(char* file_path, const char* group,
 /**
 * Initializes a pool of Kafka connections.
 */
-void kaf_init(int num_of_conns, struct app_params app)
+int kaf_init(int num_of_conns, struct app_params app)
 {
 	int i;
 	char errstr[512];
@@ -127,6 +127,7 @@ void kaf_init(int num_of_conns, struct app_params app)
 		if (!kaf_h[i]) {
 			//rte_exit(EXIT_FAILURE, "Cannot init kafka connection: %s", errstr);
 			printf_s("Cannot init kafka connection: %s", errstr);
+			return -1;
 		}
 
 		// configure kafka topic; values parsed from kafka config file
@@ -140,8 +141,11 @@ void kaf_init(int num_of_conns, struct app_params app)
 		if (!kaf_top_h[i]) {
 			//rte_exit(EXIT_FAILURE, "Cannot init kafka topic: %s", app.kafka_topic);
 			printf_s("Cannot init kafka topic: %s", app.kafka_topic);
+			return -1;
 		}
 	}
+
+	return 0;
 }
 
 /**
