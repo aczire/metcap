@@ -173,6 +173,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|x64'">
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);UNICODE=1</PreprocessorDefinitions>
@@ -215,6 +218,10 @@
     <Bscmake>
       <PreserveSbr Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">true</PreserveSbr>
     </Bscmake>
+    <PostBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Win8 Release|x64'">
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Inf Exclude="@(Inf)" Include="*.inf" />

@@ -128,6 +128,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <TimeStampServer>http://timestamp.globalsign.com/scripts/timstamp.dll</TimeStampServer>
+    <EnableInf2cat>true</EnableInf2cat>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
