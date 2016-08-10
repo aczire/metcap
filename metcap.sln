@@ -26,9 +26,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "metcapdrv", "sys\60\ndisprot60.vcxproj", "{92E567C1-EF36-496E-B86D-EB8D0E5D9EA1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "metcap", "metcap\metcap.vcxproj", "{4AAAAB44-4C4E-413C-A916-B87DAE084FC1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{92E567C1-EF36-496E-B86D-EB8D0E5D9EA1} = {92E567C1-EF36-496E-B86D-EB8D0E5D9EA1}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "setup", "installer\TapInstall.vcxproj", "{0408E75F-D236-4E40-AD43-88BD39C9DF3A}"
 	ProjectSection(ProjectDependencies) = postProject
