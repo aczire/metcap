@@ -3,7 +3,7 @@
 *
 * All rights reserved.
 * 
-* This file is part of WinTAP. WinTAP is released under 
+* This file is part of MetCAP. MetCAP is released under 
 * GNU General Public License, version 2.
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@
 //
 // "Friendly" Name
 //
-#define NDISPROT_FRIENDLY_NAME_A          "WinTap Protocol Driver"
-#define NDISPROT_FRIENDLY_NAME_W          L"WinTap Protocol Driver"
+#define NDISPROT_FRIENDLY_NAME_A          "MetCap Protocol Driver"
+#define NDISPROT_FRIENDLY_NAME_W          L"MetCap Protocol Driver"
 
 #ifdef UNICODE
 #define NDISPROT_FRIENDLY_NAME            NDISPROT_FRIENDLY_NAME_W
@@ -46,8 +46,8 @@
 // This is the name of the protocol, and is a parameter passed to
 // NdisRegisterProtocol().
 //
-#define NDISPROT_PROTOCOL_NAME_W  L"WINTAP"
-#define NDISPROT_PROTOCOL_NAME_A  "WINTAP"
+#define NDISPROT_PROTOCOL_NAME_W  L"METCAP"
+#define NDISPROT_PROTOCOL_NAME_A  "METCAP"
 
 #ifdef UNICODE
 #define NDISPROT_PROTOCOL_NAME NDISPROT_PROTOCOL_NAME_W
@@ -60,8 +60,8 @@
 // -----------------------------
 // This is the name of the NDISPROT driver WDM device object.
 //
-#define NDISPROT_WDM_DEVICE_NAME_W  L"\\Device\\WINTAP"
-#define NDISPROT_WDM_DEVICE_NAME_A  "\\Device\\WINTAP"
+#define NDISPROT_WDM_DEVICE_NAME_W  L"\\Device\\METCAP"
+#define NDISPROT_WDM_DEVICE_NAME_A  "\\Device\\METCAP"
 
 #ifdef UNICODE
 #define NDISPROT_WDM_DEVICE_NAME NDISPROT_WDM_DEVICE_NAME_W
@@ -76,8 +76,8 @@
 // is a user-visible name that can be used by Win32 applications to access
 // the NDISPROT driver WDM interface.
 //
-#define NDISPROT_WDM_SYMBOLIC_LINK_W  L"\\DosDevices\\WINTAP"
-#define NDISPROT_WDM_SYMBOLIC_LINK_A  "\\DosDevices\\WINTAP"
+#define NDISPROT_WDM_SYMBOLIC_LINK_W  L"\\DosDevices\\METCAP"
+#define NDISPROT_WDM_SYMBOLIC_LINK_A  "\\DosDevices\\METCAP"
 
 #ifdef UNICODE
 #define NDISPROT_WDM_SYMBOLIC_LINK  NDISPROT_WDM_SYMBOLIC_LINK_W
@@ -91,8 +91,8 @@
 // This is the name that Win32 applications pass to CreateFile to open
 // the TPA-REDIR symbolic link.
 //
-#define NDISPROT_WDM_DEVICE_FILENAME_W  L"\\\\.\\WINTAP"
-#define NDISPROT_WDM_DEVICE_FILENAME_A  "\\\\.\\WINTAP"
+#define NDISPROT_WDM_DEVICE_FILENAME_W  L"\\\\.\\METCAP"
+#define NDISPROT_WDM_DEVICE_FILENAME_A  "\\\\.\\METCAP"
 
 #ifdef UNICODE
 #define NDISPROT_WDM_DEVICE_FILENAME NDISPROT_WDM_DEVICE_FILENAME_W
@@ -103,11 +103,11 @@
 //
 // Driver INF File and PnP ID Names
 //
-#define NDISPROT_SERVICE_PNP_DEVICE_ID_A      "WINTAP_TAPROTO"
-#define NDISPROT_SERVICE_PNP_DEVICE_ID_W      L"WINTAP_TAPROTO"
+#define NDISPROT_SERVICE_PNP_DEVICE_ID_A      "METCAP_TAPROTO"
+#define NDISPROT_SERVICE_PNP_DEVICE_ID_W      L"METCAP_TAPROTO"
 
-#define NDISPROT_SERVICE_INF_FILE_A           "WTAPDRV"
-#define NDISPROT_SERVICE_INF_FILE_W           L"WTAPDRV"
+#define NDISPROT_SERVICE_INF_FILE_A           "METCAPDRV"
+#define NDISPROT_SERVICE_INF_FILE_W           L"METCAPDRV"
 
 #ifdef UNICODE
 #define NDISPROT_SERVICE_PNP_DEVICE_ID        NDISPROT_SERVICE_PNP_DEVICE_ID_W
@@ -121,8 +121,8 @@
 //// Registry Path Strings
 //
 
-#define NDISPROT_REGSTR_PATH_PARAMETERS_W   L"WINTAP\\Parameters"
-#define NDISPROT_REGSTR_PATH_PARAMETERS_A   "WINTAP\\Parameters"
+#define NDISPROT_REGSTR_PATH_PARAMETERS_W   L"METCAP\\Parameters"
+#define NDISPROT_REGSTR_PATH_PARAMETERS_A   "METCAP\\Parameters"
 
 #ifdef UNICODE
 #define NDISPROT_REGSTR_PATH_PARAMETERS     NDISPROT_REGSTR_PATH_PARAMETERS_W

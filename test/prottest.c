@@ -3,7 +3,7 @@
 *
 * All rights reserved.
 * 
-* This file is part of WinTAP. WinTAP is released under 
+* This file is part of MetCAP. MetCAP is released under 
 * GNU General Public License, version 2.
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 //
 // UIOTEST.C
 //
-// Test program for wtapdrv.sys
+// Test program for metcapdrv.sys
 //
 // usage: UIOTEST [options] <devicename>
 //
@@ -79,7 +79,7 @@
 
 #define MAX_NDIS_DEVICE_NAME_LEN        256
 
-CHAR            NdisProtDevice[] = "\\\\.\\\\Wintap";
+CHAR            NdisProtDevice[] = "\\\\.\\\\Metcap";
 CHAR *          pNdisProtDevice = &NdisProtDevice[0];
 
 BOOLEAN         DoEnumerate = FALSE;

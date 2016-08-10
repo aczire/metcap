@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="wintap.c">
+    <ClCompile Include="metcap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="kafka.c">

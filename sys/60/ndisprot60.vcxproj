@@ -64,7 +64,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{92E567C1-EF36-496E-B86D-EB8D0E5D9EA1}</ProjectGuid>
     <RootNamespace>$(MSBuildProjectName)</RootNamespace>
-    <ProjectName>wtapdrv</ProjectName>
+    <ProjectName>metcapdrv</ProjectName>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|Win32'">
     <TargetVersion>Win8</TargetVersion>
@@ -170,7 +170,7 @@
   </ImportGroup>
   <ItemGroup Label="WrappedTaskItems" />
   <PropertyGroup>
-    <TargetName>wtapdrv</TargetName>
+    <TargetName>metcapdrv</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -254,10 +254,10 @@
       <PreCompiledHeader>Create</PreCompiledHeader>
       <PreCompiledHeaderOutputFile>$(IntDir)\precomp.h.pch</PreCompiledHeaderOutputFile>
     </ClCompile>
-    <ResourceCompile Include="wtapdrv.rc" />
+    <ResourceCompile Include="metcapdrv.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Inf Exclude="@(Inf)" Include="wtapdrv.inf" />
+    <Inf Exclude="@(Inf)" Include="metcapdrv.inf" />
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>

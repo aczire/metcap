@@ -3,7 +3,7 @@
 *
 * All rights reserved.
 * 
-* This file is part of WinTAP. WinTAP is released under 
+* This file is part of MetCAP. MetCAP is released under 
 * GNU General Public License, version 2.
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 * 
 */
 
-// NT Entry points and dispatch routines for WinTap.
+// NT Entry points and dispatch routines for MetCap.
 
 #include "precomp.h"
 
@@ -71,7 +71,7 @@ Return Value:
 {
     NDIS_PROTOCOL_DRIVER_CHARACTERISTICS   protocolChar = {0};
     NTSTATUS                        status = STATUS_SUCCESS;
-    NDIS_STRING                     protoName = NDIS_STRING_CONST("WINTAP");     
+    NDIS_STRING                     protoName = NDIS_STRING_CONST("METCAP");     
     UNICODE_STRING                  ntDeviceName;
     UNICODE_STRING                  win32DeviceName;
     BOOLEAN                         fSymbolicLink = FALSE;

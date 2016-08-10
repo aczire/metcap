@@ -1,11 +1,11 @@
-// Debug macros for WinTap
+// Debug macros for MetCap
 /*
 *
 * Copyright 2013, New Tribes Mission Inc, (ntm.org)
 *
 * All rights reserved.
 * 
-* This file is part of WinTAP. WinTAP is released under 
+* This file is part of MetCAP. MetCAP is released under 
 * GNU General Public License, version 2.
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -120,7 +120,7 @@ extern INT                ndisprotDebugLevel;
         {                                                               \
             if ((lev) <= ndisprotDebugLevel)                             \
             {                                                           \
-                DbgPrint("Wtapdrv: "); DbgPrint stmt;                   \
+                DbgPrint("metcapdrv: "); DbgPrint stmt;                   \
             }                                                           \
         }
 
@@ -136,7 +136,7 @@ extern INT                ndisprotDebugLevel;
         {                                                               \
             if (!(exp))                                                 \
             {                                                           \
-                DbgPrint("Wtapdrv: assert " #exp " failed in"           \
+                DbgPrint("metcapdrv: assert " #exp " failed in"           \
                     " file %s, line %d\n", __FILE__, __LINE__);         \
                 DbgBreakPoint();                                        \
             }                                                           \
@@ -148,7 +148,7 @@ extern INT                ndisprotDebugLevel;
 #define NPROT_STRUCT_ASSERT(s, t)                                        \
         if ((s)->t##_sig != t##_signature)                              \
         {                                                               \
-            DbgPrint("Wtapdrv: assertion failure"                       \
+            DbgPrint("metcapdrv: assertion failure"                       \
             " for type " #t " at 0x%p in file %s, line %d\n",           \
              s, __FILE__, __LINE__);                            \
             DbgBreakPoint();                                            \

@@ -144,11 +144,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <!--Inf Include="DriverInf.inv" /-->
-    <FilesToPackage Include="..\sys\60\x64\VistaDebug\wtapdrv.pdb" Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">
+    <FilesToPackage Include="..\sys\60\x64\VistaDebug\metcapdrv.pdb" Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">
       <PackageRelativeDirectory>
       </PackageRelativeDirectory>
     </FilesToPackage>
-    <FilesToPackage Include="..\wintap\x64\VistaDebug\wintap.pdb" Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">
+    <FilesToPackage Include="..\metcap\x64\VistaDebug\metcap.pdb" Condition="'$(Configuration)|$(Platform)'=='Vista Debug|x64'">
       <PackageRelativeDirectory>
       </PackageRelativeDirectory>
     </FilesToPackage>
@@ -161,7 +161,7 @@
     <ProjectReference Include="..\test\prottest.vcxproj">
       <Project>{103384f3-2df5-4366-b5f6-ba75d5fc701f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\wintap\wintap.vcxproj">
+    <ProjectReference Include="..\metcap\metcap.vcxproj">
       <Project>{4aaaab44-4c4e-413c-a916-b87dae084fc1}</Project>
     </ProjectReference>
   </ItemGroup>

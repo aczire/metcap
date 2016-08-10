@@ -23,9 +23,9 @@ Abstract:
 #define	VER_FILETYPE	VFT_DRV
 #define	VER_FILESUBTYPE	VFT2_DRV_NETWORK
 
-#define VER_FILEDESCRIPTION_STR     "WinTap User mode I/O Driver"
-#define VER_INTERNALNAME_STR        "WTAPDRV630.SYS"
-#define VER_ORIGINALFILENAME_STR    "WTAPDRV630.SYS"
+#define VER_FILEDESCRIPTION_STR     "MetCap User mode I/O Driver"
+#define VER_INTERNALNAME_STR        "METCAPDRV630.SYS"
+#define VER_ORIGINALFILENAME_STR    "METCAPDRV630.SYS"
 #define VER_LANGNEUTRAL
 
 #define VER_FILEVERSION             1,10,00,0000
@@ -43,7 +43,7 @@ Abstract:
 #define VER_COMPANYNAME_STR         "Aczire Solutions"
 
 #undef  VER_PRODUCTNAME_STR
-#define VER_PRODUCTNAME_STR         "WinTap Protocol Driver"
+#define VER_PRODUCTNAME_STR         "MetCap Protocol Driver"
 
 #include "common.ver"
 

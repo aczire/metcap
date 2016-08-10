@@ -1,10 +1,10 @@
-/* wintap.c : Defines the entry point for the application.
+/* metcap.c : Defines the entry point for the application.
 *
 * Copyright 2013, New Tribes Mission Inc, (ntm.org)
 *
 * All rights reserved.
 *
-* This file is part of WinTAP. WinTAP is released under
+* This file is part of MetCAP. MetCAP is released under
 * GNU General Public License, version 2.
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@
 #define ulong ULONG
 #define MAX_NDIS_DEVICE_NAME_LEN        256
 
-char            NdisProtDevice[] = "\\\\.\\\\Wintap";
+char            NdisProtDevice[] = "\\\\.\\\\Metcap";
 char *          pNdisProtDevice = &NdisProtDevice[0];
 
 BOOLEAN         DoEnumerate = FALSE;
@@ -211,7 +211,7 @@ OpenNdisDevice(
 
 
 	PRINTF(("\nTrying to access NDIS Device: %ws \n", pszDeviceName));
-	OutputDebugString(_T("wintap: "));
+	OutputDebugString(_T("metcap: "));
 	OutputDebugString(_T("Trying to access NDIS Device: "));
 	OutputDebugString(pszDeviceName);
 	OutputDebugString(_T("\n"));
@@ -313,7 +313,7 @@ EnumerateDevices(
 		else {
 			ulong   rc = GetLastError();
 			if (rc != ERROR_NO_MORE_ITEMS) {
-				PRINTF(("\nNo interfaces found! Make sure WinTap driver is installed.\n, error %d\n", rc));
+				PRINTF(("\nNo interfaces found! Make sure MetCap driver is installed.\n, error %d\n", rc));
 			}
 			break;
 		}
@@ -367,7 +367,7 @@ GetDevice(
 	else {
 		ulong   rc = GetLastError();
 		if (rc != ERROR_NO_MORE_ITEMS) {
-			PRINTF(("\nNo interfaces found! Make sure WinTap driver is installed.\n, error %d\n", rc));
+			PRINTF(("\nNo interfaces found! Make sure MetCap driver is installed.\n, error %d\n", rc));
 		}
 		return bSuccess;
 	}
@@ -454,7 +454,7 @@ int wmain(int argc, _TCHAR* argv[]) {
 
 		PRINTF(("\nEnter the Kafka Topic to use. [metron]:"));
 		wscanf_s(L"%s", kafka_topic, (unsigned)_countof(kafka_topic));
-		PRINTF(("\nEnter the Kafka config path to use. [C:\\WinTap\\code\\wintap\\conf\\localhost.kafka]:"));
+		PRINTF(("\nEnter the Kafka config path to use. [C:\\MetCap\\code\\metcap\\conf\\localhost.kafka]:"));
 		wscanf_s(L"%s", kafka_config_path, (unsigned)_countof(kafka_config_path));
 	}
 
@@ -462,7 +462,7 @@ int wmain(int argc, _TCHAR* argv[]) {
 
 	if (!bDevicesDefined) {
 		if (!GetDevice(DeviceHandleIn, DeviceIndex1, NdisDeviceNameIn, pDeviceNameLength)) {
-			PRINTF(("\nUnable to get the source adapter. Device is not supported by WinTap\n"));
+			PRINTF(("\nUnable to get the source adapter. Device is not supported by MetCap\n"));
 			if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 				CloseHandle(DeviceHandleIn);
 				CloseHandle(DeviceHandleOut);
@@ -479,7 +479,7 @@ int wmain(int argc, _TCHAR* argv[]) {
 	debug(("Source Adapter %ws with length: %I64u\n", NdisDeviceNameIn, DeviceNameLength));
 
 	if (!OpenNdisDevice(DeviceHandleIn, NdisDeviceNameIn, DeviceNameLength)) {
-		PRINTF(("\nUnable to open the source adapter %ws. Device not supported by WinTap\n", NdisDeviceNameIn));
+		PRINTF(("\nUnable to open the source adapter %ws. Device not supported by MetCap\n", NdisDeviceNameIn));
 		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);
@@ -490,7 +490,7 @@ int wmain(int argc, _TCHAR* argv[]) {
 	PRINTF(("\nOpened source interface successfully!\n"));
 
 	if (!GetSrcMac(DeviceHandleIn, SrcMacAddr)) {
-		PRINTF(("\nUnable to get the source adapter MAC. Device is not supported by WinTap\n"));
+		PRINTF(("\nUnable to get the source adapter MAC. Device is not supported by MetCap\n"));
 		if (DeviceHandleIn != INVALID_HANDLE_VALUE || DeviceHandleOut != INVALID_HANDLE_VALUE) {
 			CloseHandle(DeviceHandleIn);
 			CloseHandle(DeviceHandleOut);

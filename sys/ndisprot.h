@@ -3,7 +3,7 @@
 *
 * All rights reserved.
 * 
-* This file is part of WinTAP. WinTAP is released under 
+* This file is part of MetCAP. MetCAP is released under 
 * GNU General Public License, version 2.
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 * 
 */
 
-// Data structures, defines and function prototypes for WinTap.
+// Data structures, defines and function prototypes for MetCap.
 
 #ifndef __NDISPROT__H
 #define __NDISPROT__H
@@ -55,8 +55,8 @@
 #endif
 
 
-#define NT_DEVICE_NAME          L"\\Device\\Wintap"
-#define DOS_DEVICE_NAME         L"\\Global??\\Wintap"
+#define NT_DEVICE_NAME          L"\\Device\\Metcap"
+#define DOS_DEVICE_NAME         L"\\Global??\\Metcap"
 
 
 //
