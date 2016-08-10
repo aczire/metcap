@@ -623,9 +623,9 @@ DWORD WINAPI CaptureAndForwardThread(LPVOID lpParameter) {
 				EnterCriticalSection(&print_cs);
 
 				if (psaReflectArgs->state == 0)
-					debug((">>: read pkt - %d bytes\n", BytesRead));
+					debug(("Sending pkt - %d bytes\n", BytesRead));
 				else
-					debug(("<<: read pkt - %d bytes\n", BytesRead));
+					debug(("Reflecting pkt - %d bytes\n", BytesRead));
 
 				LeaveCriticalSection(&print_cs);
 #endif
