@@ -1,11 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-    <head><link rel="stylesheet" type="text/css" href="description/Combined.css,0:SearchBox,0:ImageSprite;/Areas/Epx/Themes/Metro/Content:0&amp;amp;hashKey=117BAC28FA404ADE34B839F23DA6CC1E" xmlns="http://www.w3.org/1999/xhtml" />
-<link rel="stylesheet" type="text/css" href="description/d0a480a2-d1c4-4159-af59-5aa4abd59cb0Combined.css,0:ImageSprite;/Areas/Epx/Themes/Metro/Content:0&amp;amp;hashKey=9BB0483639637E71A098F1750E860CCF" xmlns="http://www.w3.org/1999/xhtml" />
+    <head><link rel="stylesheet" type="text/css" href="description/Combined.css,0:SearchBox,0:ImageSprite;/Areas/Epx/Themes/Metro/Content:0&amp;amp;hashKey=8CD1524879332D72B098FF741A863CDA" xmlns="http://www.w3.org/1999/xhtml" />
+<link rel="stylesheet" type="text/css" href="description/Combined.css,0:ImageSprite;/Areas/Epx/Themes/Metro/Content:0&amp;amp;hashKey=8CD1524879332D72B098FF741A863CDA" xmlns="http://www.w3.org/1999/xhtml" />
 
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>MetCap Protocol Driver v1.1</title>
-        <link href="description/Galleries.css" type="text/css" rel="Stylesheet" /><link href="description/Layout.css" type="text/css" rel="Stylesheet" /><link href="description/Brand.css" type="text/css" rel="Stylesheet" /><link href="description/84ada392-ed9e-43d3-9c3e-f99f948be6cbBrand.css" type="text/css" rel="Stylesheet" />
+        <link href="description/Galleries.css" type="text/css" rel="Stylesheet" /><link href="description/Layout.css" type="text/css" rel="Stylesheet" /><link href="description/Brand.css" type="text/css" rel="Stylesheet" /><link href="description/Brand.css" type="text/css" rel="Stylesheet" />
         <link href="description/iframedescription.css" rel="Stylesheet" type="text/css" />
         <script src="description/offline.js" type="text/javascript"></script>
         <style type="text/css">
@@ -124,7 +124,7 @@
  div.code{width:98.9%} code{font-family:Monospace,Courier New,Courier;font-size:105%;color:#006} span.label{font-weight:bold} div.caption{font-weight:bold;font-size:100%;color:#039} .procedureSubHeading{font-size:110%;font-weight:bold} span.sub{vertical-align:sub}
  span.sup{vertical-align:super} span.big{font-size:larger} span.small{font-size:smaller} span.tt{font-family:Courier,"Courier New",Consolas,monospace} .CCE_Message{color:Red;font-size:10pt} </style>
 <div id="mainSection">
-<p>MetCap (metcapdrv.sys) is a connection-less NDIS 6.0 protocol driver to support user-mode mirroring of raw ethernet frames from one network device to another. The metcap.exe is the user-mode application program which setup a uni-directional, user-level bridge to create a soft-tap, like daemonlogger. It opens the source and destination adapters specified by the user and starts copying all ethernet frames from source to destination. I.e, it receives packets from adapter 1 and sends them down to adapter 2. During the mirroring process, the ethernet frames are re-written to match the destination adapter's MAC.</p>
+<p>MetCap (metcapdrv.sys) is a connection-less NDIS 6.0 protocol driver to support user-mode mirroring of raw ethernet frames from the selected network device to the configured Kafka server. The metcap.exe is the user-mode application program which setup a uni-directional, user-level bridge to create a soft-tap, like daemonlogger. It opens the source ada[ter and destination kafka topic specified by the user and starts copying all ethernet frames from source to destination. i.e, it receives packets from source adapter and sends them down to Kafka server on the given topic.</p>
 <h3>To Build MetCap</h3>
 <p>
 The source code for MetCap is available for download at
@@ -134,9 +134,9 @@ The source code for MetCap is available for download at
 </blockquote>
 To build the MetCap package from source:
 <ol>
-<li> Download and install the <a href="http://www.microsoft.com/whdc/devtools/wdk/default.mspx">Visual Studio 2012</a>.</li>
-<li> Download and install the latest <a href="http://www.microsoft.com/whdc/devtools/wdk/default.mspx">Windows Driver Kit</a>.</li>
-<li> Open <i>metcap.sln</i> in Visual Studio 2012.</li>
+<li> Download and install the <a href="http://www.microsoft.com/whdc/devtools/wdk/default.mspx">Visual Studio 2015 Community Edition</a>.</li>
+<li> Download and install the latest <a href="http://www.microsoft.com/whdc/devtools/wdk/default.mspx">Windows Driver Kit-10</a>.</li>
+<li> Open <i>metcap.sln</i> in Visual Studio 2015.</li>
 <li> Rebuild the solution.
 <p>This will build the following files and place them in the
 <i>&lt;SolutionDir&gt;\&lt;Platform&gt;\&lt;ConfigurationName&gt;\Package</i> subdirectory:</p>
@@ -144,7 +144,7 @@ To build the MetCap package from source:
 <li> metcapdrv.sys: Kernel-mode driver.</li>
 <li> metcapdrv.inf: INF file for metcapdrv.sys.</li>
 <li> metcapdrv.cat: CAT file for metcapdrv.sys.</li>
-<li> metcapdrv.pdb: Debug symbols for WinDivert.sys.</li>
+<li> metcapdrv.pdb: Debug symbols for metcapdrv.sys.</li>
 <li> MetCap.exe: User-mode application to reflect traffic.</li>
 </ul>
 </ol>
@@ -204,7 +204,7 @@ After following these steps you should be able to use the MetCap driver.
 <p>To start the driver, type <b>net start metcap</b>.</p>
 <p>To stop the driver, type <b>net stop metcap</b>.</p>
 <p>To test the driver, run <b>metcap</b>. For help on usage, run <b>metcap -?</b></p>
-<p><b>usage: metcap &lt;source deviceid&gt; &lt;destination deviceid&gt;</b> </p>
+<p><b>usage: metcap &lt;source deviceid&gt; &lt;kafka topic&gt; &lt;kafka config file&gt;</b> </p>
 <p><b>*Note: In order to use metcap, the user must have administrative privilege.</b> </p>
 
 <pre>C:\Users\Administrator\metcap>metcap.exe
@@ -215,7 +215,6 @@ Available Devices:
      - Intel(R) PRO/1000 MT Network Connection
 
 Enter the number of source interface to use (0-1):1
-Enter the number of destination interface to use (0-1):0
 
  1. \DEVICE\{17152850-6288-471A-9708-2889E7F55EE8}
      - Intel(R) PRO/1000 MT Network Connection
@@ -224,26 +223,15 @@ Opened source interface successfully!
 Trying to get src mac address
 Got source MAC: 00:0c:29:34:a1:09
 
- 0. \DEVICE\{CE5C7DDF-A5A4-4534-B354-633C1CDB70CB}
-     - Intel(R) PRO/1000 MT Network Connection #2
-Trying to access NDIS Device: \DEVICE\{CE5C7DDF-A5A4-4534-B354-633C1CDB70CB}
-Opened destination interface successfully!
-Trying to get destination mac address
-Got destination MAC: 00:0c:29:34:a1:13
-
 Started reflecting the adapter...
 >>: read pkt - 148 bytes
 >>: read pkt - 60 bytes
 </pre>
-
 <p></p>
 <p>For more information, see <a href="http://msdn.microsoft.com/en-us/library/windows/hardware/Ff566821">
 NDIS Protocol Drivers</a>.</p>
-</div>
-
-</div>
-
-
-    </div>
-</body>
+			</div>
+		</div>
+	</div>
+  </body>
 </html>
