@@ -1,27 +1,22 @@
-// This module contains all debug-related code.
-/*
+/**
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
 *
-* Copyright 2013, New Tribes Mission Inc, (ntm.org)
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* All rights reserved.
-* 
-* This file is part of MetCAP. MetCAP is released under 
-* GNU General Public License, version 2.
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-* 
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 */
+
+// This module contains all debug-related code.
 
 #include <precomp.h>
 
@@ -29,7 +24,7 @@
 
 #if DBG
 
-INT             	ndisprotDebugLevel=DL_EXTRA_LOUD;
+INT             	ndisprotDebugLevel = DL_EXTRA_LOUD;
 
 NDIS_SPIN_LOCK		ndisprotDbgLogLock;
 
@@ -47,32 +42,28 @@ ndisprotAuditAllocMem(
 	ULONG	Size,
 	ULONG	FileNumber,
 	ULONG	LineNumber
-)
-{
+) {
 	PVOID				pBuffer;
 	PNPROTD_ALLOCATION	pAllocInfo;
 
-	if (!ndisprotdInitDone)
-	{
+	if (!ndisprotdInitDone) {
 		NdisAllocateSpinLock(&(ndisprotdMemoryLock));
 		ndisprotdInitDone = TRUE;
 	}
 
 	NdisAllocateMemoryWithTag(
 		(PVOID *)&pAllocInfo,
-		Size+sizeof(NPROTD_ALLOCATION),
+		Size + sizeof(NPROTD_ALLOCATION),
 		(ULONG)'oiuN'
 	);
 
-	if (pAllocInfo == (PNPROTD_ALLOCATION)NULL)
-	{
-		DEBUGP(DL_VERY_LOUD+50,
+	if (pAllocInfo == (PNPROTD_ALLOCATION)NULL) {
+		DEBUGP(DL_VERY_LOUD + 50,
 			("ndisprotAuditAllocMem: file %d, line %d, Size %d failed!\n",
 				FileNumber, LineNumber, Size));
 		pBuffer = NULL;
 	}
-	else
-	{
+	else {
 		pBuffer = (PVOID)&(pAllocInfo->UserData);
 		NPROT_SET_MEM(pBuffer, 0xaf, Size);
 		pAllocInfo->Signature = NPROTD_MEMORY_SIGNATURE;
@@ -85,28 +76,26 @@ ndisprotAuditAllocMem(
 		NdisAcquireSpinLock(&(ndisprotdMemoryLock));
 
 		pAllocInfo->Prev = ndisprotdMemoryTail;
-		if (ndisprotdMemoryTail == (PNPROTD_ALLOCATION)NULL)
-		{
+		if (ndisprotdMemoryTail == (PNPROTD_ALLOCATION)NULL) {
 			// empty list
 			ndisprotdMemoryHead = ndisprotdMemoryTail = pAllocInfo;
 		}
-		else
-		{
+		else {
 			ndisprotdMemoryTail->Next = pAllocInfo;
 		}
 		ndisprotdMemoryTail = pAllocInfo;
-		
+
 		ndisprotdAllocCount++;
 		NdisReleaseSpinLock(&(ndisprotdMemoryLock));
 	}
 
-	DEBUGP(DL_VERY_LOUD+100,
-	 ("ndisprotAuditAllocMem: file %c%c%c%c, line %d, %d bytes, [0x%p] <- 0x%p\n",
-	 			(CHAR)(FileNumber & 0xff),
-	 			(CHAR)((FileNumber >> 8) & 0xff),
-	 			(CHAR)((FileNumber >> 16) & 0xff),
-	 			(CHAR)((FileNumber >> 24) & 0xff),
-				LineNumber, Size, pPointer, pBuffer));
+	DEBUGP(DL_VERY_LOUD + 100,
+		("ndisprotAuditAllocMem: file %c%c%c%c, line %d, %d bytes, [0x%p] <- 0x%p\n",
+		(CHAR)(FileNumber & 0xff),
+			(CHAR)((FileNumber >> 8) & 0xff),
+			(CHAR)((FileNumber >> 16) & 0xff),
+			(CHAR)((FileNumber >> 24) & 0xff),
+			LineNumber, Size, pPointer, pBuffer));
 
 	return (pBuffer);
 
@@ -116,18 +105,16 @@ ndisprotAuditAllocMem(
 VOID
 ndisprotAuditFreeMem(
 	PVOID	Pointer
-)
-{
+) {
 	PNPROTD_ALLOCATION	pAllocInfo;
 
 	NdisAcquireSpinLock(&(ndisprotdMemoryLock));
 
 	pAllocInfo = CONTAINING_RECORD(Pointer, NPROTD_ALLOCATION, UserData);
 
-	if (pAllocInfo->Signature != NPROTD_MEMORY_SIGNATURE)
-	{
+	if (pAllocInfo->Signature != NPROTD_MEMORY_SIGNATURE) {
 		DEBUGP(DL_ERROR,
-		 ("ndisprotAuditFreeMem: unknown buffer 0x%p!\n", Pointer));
+			("ndisprotAuditFreeMem: unknown buffer 0x%p!\n", Pointer));
 		NdisReleaseSpinLock(&(ndisprotdMemoryLock));
 #if DBG
 		DbgBreakPoint();
@@ -136,20 +123,16 @@ ndisprotAuditFreeMem(
 	}
 
 	pAllocInfo->Signature = (ULONG)'DEAD';
-	if (pAllocInfo->Prev != (PNPROTD_ALLOCATION)NULL)
-	{
+	if (pAllocInfo->Prev != (PNPROTD_ALLOCATION)NULL) {
 		pAllocInfo->Prev->Next = pAllocInfo->Next;
 	}
-	else
-	{
+	else {
 		ndisprotdMemoryHead = pAllocInfo->Next;
 	}
-	if (pAllocInfo->Next != (PNPROTD_ALLOCATION)NULL)
-	{
+	if (pAllocInfo->Next != (PNPROTD_ALLOCATION)NULL) {
 		pAllocInfo->Next->Prev = pAllocInfo->Prev;
 	}
-	else
-	{
+	else {
 		ndisprotdMemoryTail = pAllocInfo->Prev;
 	}
 	ndisprotdAllocCount--;
@@ -162,22 +145,18 @@ ndisprotAuditFreeMem(
 VOID
 ndisprotAuditShutdown(
 	VOID
-)
-{
-	if (ndisprotdInitDone)
-	{
-		if (ndisprotdAllocCount != 0)
-		{
+) {
+	if (ndisprotdInitDone) {
+		if (ndisprotdAllocCount != 0) {
 			DEBUGP(DL_ERROR, ("AuditShutdown: unfreed memory, %d blocks!\n",
-					ndisprotdAllocCount));
+				ndisprotdAllocCount));
 			DEBUGP(DL_ERROR, ("MemoryHead: 0x%p, MemoryTail: 0x%p\n",
-					ndisprotdMemoryHead, ndisprotdMemoryTail));
+				ndisprotdMemoryHead, ndisprotdMemoryTail));
 			DbgBreakPoint();
 			{
 				PNPROTD_ALLOCATION		pAllocInfo;
 
-				while (ndisprotdMemoryHead != (PNPROTD_ALLOCATION)NULL)
-				{
+				while (ndisprotdMemoryHead != (PNPROTD_ALLOCATION)NULL) {
 					pAllocInfo = ndisprotdMemoryHead;
 					DEBUGP(DL_INFO, ("AuditShutdown: will free 0x%p\n", pAllocInfo));
 					ndisprotAuditFreeMem(&(pAllocInfo->UserData));
@@ -199,42 +178,38 @@ DbgPrintHexDump(
 
 Routine Description:
 
-	Print a hex dump of the given contiguous buffer. If the length
-	is too long, we truncate it.
+Print a hex dump of the given contiguous buffer. If the length
+is too long, we truncate it.
 
 Arguments:
 
-	pBuffer			- Points to start of data to be dumped
-	Length			- Length of above.
+pBuffer			- Points to start of data to be dumped
+Length			- Length of above.
 
 Return Value:
 
-	None
+None
 
 --*/
 {
 	ULONG		i;
 
-	if (Length > MAX_HD_LENGTH)
-	{
+	if (Length > MAX_HD_LENGTH) {
 		Length = MAX_HD_LENGTH;
 	}
 
-	for (i = 0; i < Length; i++)
-	{
+	for (i = 0; i < Length; i++) {
 		//
 		//  Check if we are at the end of a line
 		//
-		if ((i > 0) && ((i & 0xf) == 0))
-		{
+		if ((i > 0) && ((i & 0xf) == 0)) {
 			DbgPrint("\n");
 		}
 
 		//
 		//  Print addr if we are at start of a new line
 		//
-		if ((i & 0xf) == 0)
-		{
+		if ((i & 0xf) == 0) {
 			DbgPrint("%08p ", pBuffer);
 		}
 
@@ -244,8 +219,7 @@ Return Value:
 	//
 	//  Terminate the last line.
 	//
-	if (Length > 0)
-	{
+	if (Length > 0) {
 		DbgPrint("\n");
 	}
 }
@@ -261,10 +235,8 @@ ndisprotAllocateSpinLock(
 	IN	PNPROT_LOCK		pLock,
 	IN	ULONG				FileNumber,
 	IN	ULONG				LineNumber
-)
-{
-	if (ndisprotdSpinLockInitDone == 0)
-	{
+) {
+	if (ndisprotdSpinLockInitDone == 0) {
 		ndisprotdSpinLockInitDone = 1;
 		NdisAllocateSpinLock(&(ndisprotdLockLock));
 	}
@@ -281,69 +253,61 @@ ndisprotAllocateSpinLock(
 
 VOID
 ndisprotFreeSpinLock(
-    IN    PNPROT_LOCK        pLock,
-    IN    ULONG                FileNumber,
-    IN    ULONG                LineNumber
-)
-{
+	IN    PNPROT_LOCK        pLock,
+	IN    ULONG                FileNumber,
+	IN    ULONG                LineNumber
+) {
 
-    NdisAcquireSpinLock(&(ndisprotdLockLock));
-    pLock->Signature = NUIOL_SIG;
-    pLock->TouchedByFileNumber = FileNumber;
-    pLock->TouchedInLineNumber = LineNumber;
-    pLock->IsAcquired = 0;
-    pLock->OwnerThread = 0;
-    NdisFreeSpinLock(&(pLock->NdisLock));
-    NdisReleaseSpinLock(&(ndisprotdLockLock));
+	NdisAcquireSpinLock(&(ndisprotdLockLock));
+	pLock->Signature = NUIOL_SIG;
+	pLock->TouchedByFileNumber = FileNumber;
+	pLock->TouchedInLineNumber = LineNumber;
+	pLock->IsAcquired = 0;
+	pLock->OwnerThread = 0;
+	NdisFreeSpinLock(&(pLock->NdisLock));
+	NdisReleaseSpinLock(&(ndisprotdLockLock));
 }
 
 VOID
 ndisprotFreeDbgLock(
-    VOID
-    )
-{
-    
-    ASSERT(ndisprotdSpinLockInitDone == 1);
-    
-    ndisprotdSpinLockInitDone = 0;
-    NdisFreeSpinLock(&(ndisprotdLockLock));
+	VOID
+) {
+
+	ASSERT(ndisprotdSpinLockInitDone == 1);
+
+	ndisprotdSpinLockInitDone = 0;
+	NdisFreeSpinLock(&(ndisprotdLockLock));
 }
 
 VOID
 ndisprotAcquireSpinLock(
 	IN	PNPROT_LOCK		    pLock,
-    IN  BOOLEAN             DispatchLevel,
+	IN  BOOLEAN             DispatchLevel,
 	IN	ULONG				FileNumber,
 	IN	ULONG				LineNumber
-)
-{
+) {
 	PKTHREAD		pThread;
 
 	pThread = KeGetCurrentThread();
-    if (DispatchLevel == TRUE)
-    {
-        NdisDprAcquireSpinLock(&(ndisprotdLockLock));
-    }
-    else
-    {
-	    NdisAcquireSpinLock(&(ndisprotdLockLock));
-    }
-	if (pLock->Signature != NPROTL_SIG)
-	{
+	if (DispatchLevel == TRUE) {
+		NdisDprAcquireSpinLock(&(ndisprotdLockLock));
+	}
+	else {
+		NdisAcquireSpinLock(&(ndisprotdLockLock));
+	}
+	if (pLock->Signature != NPROTL_SIG) {
 		DbgPrint("Trying to acquire uninited lock 0x%x, File %c%c%c%c, Line %d\n",
-				pLock,
-				(CHAR)(FileNumber & 0xff),
-				(CHAR)((FileNumber >> 8) & 0xff),
-				(CHAR)((FileNumber >> 16) & 0xff),
-				(CHAR)((FileNumber >> 24) & 0xff),
-				LineNumber);
+			pLock,
+			(CHAR)(FileNumber & 0xff),
+			(CHAR)((FileNumber >> 8) & 0xff),
+			(CHAR)((FileNumber >> 16) & 0xff),
+			(CHAR)((FileNumber >> 24) & 0xff),
+			LineNumber);
 		DbgBreakPoint();
 	}
 
-	if (pLock->IsAcquired != 0)
-	{
-		if (pLock->OwnerThread == pThread)
-		{
+	if (pLock->IsAcquired != 0) {
+		if (pLock->OwnerThread == pThread) {
 			DbgPrint("Detected multiple locking!: pLock 0x%x, File %c%c%c%c, Line %d\n",
 				pLock,
 				(CHAR)(FileNumber & 0xff),
@@ -363,16 +327,14 @@ ndisprotAcquireSpinLock(
 	}
 
 	pLock->IsAcquired++;
-    if (DispatchLevel == TRUE)
-    {
-	    NdisDprReleaseSpinLock(&(ndisprotdLockLock));
-        NdisDprAcquireSpinLock(&(pLock->NdisLock));
-    }
-    else
-    {
-        NdisReleaseSpinLock(&(ndisprotdLockLock));
-        NdisAcquireSpinLock(&(pLock->NdisLock));
-    }
+	if (DispatchLevel == TRUE) {
+		NdisDprReleaseSpinLock(&(ndisprotdLockLock));
+		NdisDprAcquireSpinLock(&(pLock->NdisLock));
+	}
+	else {
+		NdisReleaseSpinLock(&(ndisprotdLockLock));
+		NdisAcquireSpinLock(&(pLock->NdisLock));
+	}
 
 	//
 	//  Mark this lock.
@@ -386,33 +348,30 @@ ndisprotAcquireSpinLock(
 VOID
 ndisprotReleaseSpinLock(
 	IN	PNPROT_LOCK		    pLock,
-    IN  BOOLEAN             DispatchLevel,
+	IN  BOOLEAN             DispatchLevel,
 	IN	ULONG				FileNumber,
 	IN	ULONG				LineNumber
-)
-{
+) {
 	NdisDprAcquireSpinLock(&(ndisprotdLockLock));
-	if (pLock->Signature != NPROTL_SIG)
-	{
+	if (pLock->Signature != NPROTL_SIG) {
 		DbgPrint("Trying to release uninited lock 0x%x, File %c%c%c%c, Line %d\n",
-				pLock,
-				(CHAR)(FileNumber & 0xff),
-				(CHAR)((FileNumber >> 8) & 0xff),
-				(CHAR)((FileNumber >> 16) & 0xff),
-				(CHAR)((FileNumber >> 24) & 0xff),
-				LineNumber);
+			pLock,
+			(CHAR)(FileNumber & 0xff),
+			(CHAR)((FileNumber >> 8) & 0xff),
+			(CHAR)((FileNumber >> 16) & 0xff),
+			(CHAR)((FileNumber >> 24) & 0xff),
+			LineNumber);
 		DbgBreakPoint();
 	}
 
-	if (pLock->IsAcquired == 0)
-	{
+	if (pLock->IsAcquired == 0) {
 		DbgPrint("Detected release of unacquired lock 0x%x, File %c%c%c%c, Line %d\n",
-				pLock,
-				(CHAR)(FileNumber & 0xff),
-				(CHAR)((FileNumber >> 8) & 0xff),
-				(CHAR)((FileNumber >> 16) & 0xff),
-				(CHAR)((FileNumber >> 24) & 0xff),
-				LineNumber);
+			pLock,
+			(CHAR)(FileNumber & 0xff),
+			(CHAR)((FileNumber >> 8) & 0xff),
+			(CHAR)((FileNumber >> 16) & 0xff),
+			(CHAR)((FileNumber >> 24) & 0xff),
+			LineNumber);
 		DbgBreakPoint();
 	}
 	pLock->TouchedByFileNumber = FileNumber;
@@ -420,13 +379,11 @@ ndisprotReleaseSpinLock(
 	pLock->IsAcquired--;
 	pLock->OwnerThread = 0;
 	NdisDprReleaseSpinLock(&(ndisprotdLockLock));
-    if (DispatchLevel == TRUE)
-    {
-        NdisDprReleaseSpinLock(&(pLock->NdisLock));
-    }
-    else
-    {
-	    NdisReleaseSpinLock(&(pLock->NdisLock));
-    }
+	if (DispatchLevel == TRUE) {
+		NdisDprReleaseSpinLock(&(pLock->NdisLock));
+	}
+	else {
+		NdisReleaseSpinLock(&(pLock->NdisLock));
+	}
 }
 #endif // DBG_SPIN_LOCK

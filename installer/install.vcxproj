@@ -52,17 +52,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="netcfgapi.cpp" />
-    <ClCompile Include="tapinstall.cpp" />
+    <ClCompile Include="install.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="netcfgapi.h" />
-    <ClInclude Include="TapInstall.h" />
+    <ClInclude Include="install.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="tapinstall.rc" />
+    <ResourceCompile Include="install.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0408E75F-D236-4E40-AD43-88BD39C9DF3A}</ProjectGuid>

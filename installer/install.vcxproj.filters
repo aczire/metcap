@@ -21,7 +21,7 @@
     <ClCompile Include="netcfgapi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tapinstall.cpp">
+    <ClCompile Include="install.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,12 +35,12 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TapInstall.h">
+    <ClInclude Include="install.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="tapinstall.rc">
+    <ResourceCompile Include="install.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -31,8 +31,7 @@ static int num_conns;
 /**
 * A callback executed for each global Kafka option.
 */
-static void kaf_global_option(const char* key, const char* val, void* arg)
-{
+static void kaf_global_option(const char* key, const char* val, void* arg) {
 	rd_kafka_conf_t* conf = (rd_kafka_conf_t*)arg;
 	rd_kafka_conf_res_t rc;
 	char err[512];
@@ -47,8 +46,7 @@ static void kaf_global_option(const char* key, const char* val, void* arg)
 /**
 * A callback executed for topic-level Kafka option.
 */
-static void kaf_topic_option(const char* key, const char* val, void* arg)
-{
+static void kaf_topic_option(const char* key, const char* val, void* arg) {
 	rd_kafka_topic_conf_t* conf = (rd_kafka_topic_conf_t*)arg;
 	rd_kafka_conf_res_t rc;
 	char err[512];
@@ -60,8 +58,7 @@ static void kaf_topic_option(const char* key, const char* val, void* arg)
 	}
 }
 
-static inline char* NextToken(char* pArg)
-{
+static inline char* NextToken(char* pArg) {
 	// find next null with strchr and
 	// point to the char beyond that.
 	return strchr(pArg, '\0') + 1;
@@ -102,8 +99,7 @@ static void parse_kafka_config(char* file_path, const char* group,
 /**
 * Initializes a pool of Kafka connections.
 */
-int kaf_init(int num_of_conns, struct app_params app)
-{
+int kaf_init(int num_of_conns, struct app_params app) {
 	int i;
 	char errstr[512];
 
@@ -151,8 +147,7 @@ int kaf_init(int num_of_conns, struct app_params app)
 /**
 * Closes the pool of Kafka connections.
 */
-void kaf_close(void)
-{
+void kaf_close(void) {
 	int i;
 	for (i = 0; i < num_conns; i++) {
 		// wait for messages to be delivered
@@ -172,8 +167,7 @@ void kaf_close(void)
 /**
 * The current time in microseconds.
 */
-static uint64_t current_time(void)
-{
+static uint64_t current_time(void) {
 	struct timeval tv;
 	//gettimeofday(&tv, NULL);
 	SYSTEMTIME  system_time;
@@ -193,15 +187,14 @@ static uint64_t current_time(void)
 /**
 * Publish a set of packets to a kafka topic.
 */
-int kaf_send(unsigned char* data, unsigned long pkt_length, int conn_id)
-{
+int kaf_send(unsigned char* data, unsigned long pkt_length, int conn_id) {
 	// unassigned partition
 	int partition = RD_KAFKA_PARTITION_UA;
 	int pkts_sent = 0;
 	int drops;
 	rd_kafka_message_t kaf_msg; // pkt_count
 
-	// TODO: ensure that librdkafka cleans this up for us
+								// TODO: ensure that librdkafka cleans this up for us
 	uint64_t *now = malloc(sizeof(uint64_t));
 
 	// the current time in microseconds from the epoch (in big-endian aka network
@@ -213,14 +206,14 @@ int kaf_send(unsigned char* data, unsigned long pkt_length, int conn_id)
 	rd_kafka_topic_t* kaf_topic = kaf_top_h[conn_id];
 
 	// create the batch message for kafka
-		kaf_msg.err = 0;
-		kaf_msg.rkt = kaf_topic;
-		kaf_msg.partition = partition;
-		kaf_msg.payload = data;
-		kaf_msg.len = pkt_length;
-		kaf_msg.key = (void*)now;
-		kaf_msg.key_len = sizeof(uint64_t);
-		kaf_msg.offset = 0;
+	kaf_msg.err = 0;
+	kaf_msg.rkt = kaf_topic;
+	kaf_msg.partition = partition;
+	kaf_msg.payload = data;
+	kaf_msg.len = pkt_length;
+	kaf_msg.key = (void*)now;
+	kaf_msg.key_len = sizeof(uint64_t);
+	kaf_msg.offset = 0;
 
 	// hand all of the messages off to kafka
 	pkts_sent = rd_kafka_produce_batch(kaf_topic, partition, RD_KAFKA_MSG_F_COPY, &kaf_msg, 1);
@@ -228,11 +221,11 @@ int kaf_send(unsigned char* data, unsigned long pkt_length, int conn_id)
 	// did we drop packets?
 	drops = pkts_sent - 1;
 	if (drops > 0) {
-			if (!kaf_msg.err) {
-				//LOG_ERROR(USER1, "'%d' packets dropped, first error: %s", drops, (char*)kaf_msgs[i].payload);
-				printf_s("'%d' packets dropped, first error: %s", drops, (char*)kaf_msg.payload);
-			}
+		if (!kaf_msg.err) {
+			//LOG_ERROR(USER1, "'%d' packets dropped, first error: %s", drops, (char*)kaf_msgs[i].payload);
+			printf_s("'%d' packets dropped, first error: %s", drops, (char*)kaf_msg.payload);
 		}
+	}
 
 	return pkts_sent;
 }
